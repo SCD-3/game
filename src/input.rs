@@ -1,22 +1,25 @@
 use bevy::prelude::*;
-use std::collections::VecDeque;
-
-const MAX_INPUT_LENGHT: usize = 5;
 
 #[derive(Resource, Default)]
-pub struct InputQueue {
-    pub queue: VecDeque<KeyCode>,
+pub struct InputBuffer {
+    pub buffer: Option<KeyCode>,
 }
 
-pub fn input_system(
-    mut input_queue: ResMut<InputQueue>,
+fn buffer_input(
+    mut input_queue: ResMut<InputBuffer>,
     keyboard: Res<ButtonInput<KeyCode>>,
 ) {
     for key in keyboard.get_just_pressed() {
-        input_queue.queue.push_back(*key);
-        
-        if input_queue.queue.len() > MAX_INPUT_LENGHT {
-            input_queue.queue.pop_front();
-        }
+        input_queue.buffer = Some(*key)
+    }
+}
+
+
+pub struct InputSystem;
+impl Plugin for InputSystem {
+    fn build(&self, app: &mut App) {
+        app
+        .insert_resource(InputBuffer::default())
+        .add_systems(Update, buffer_input);
     }
 }
