@@ -30,6 +30,10 @@ impl Pos {
         map[(self.x, self.y)].insert(*entity);
     }
 
+    pub fn to_pos(&self) -> (i64, i64) {
+        (self.x, self.y)
+    }
+
     pub fn move_direction(&mut self, direction: Direction, entity: &Entity, map: &mut MapState) {
         match direction {
             Direction::Up        => self.set(self.x,       self.y + 1, entity, map),

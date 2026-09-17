@@ -1,6 +1,6 @@
 mod comps;
 mod input;
-mod player_movement;
+mod movement_handlers;
 mod mapstate;
 mod enums;
 
@@ -18,9 +18,10 @@ fn main() {
         .insert_resource(Time::<Fixed>::from_hz(10.0))
         .add_systems(Startup, setup)
         .add_systems(Update, render)
+        .add_systems(Update, register_positions)
         
         
-        .add_systems(FixedUpdate, player_movement::player_movement)
+        .add_systems(FixedUpdate, movement_handlers::player_movement)
 
         .run();
 }
@@ -28,11 +29,10 @@ fn main() {
 
 fn setup(
     mut commands: Commands,
-    mut map: ResMut<mapstate::MapState>
 ) {
     commands.spawn(Camera2d);
 
-    let player = commands.spawn((
+    commands.spawn((
         comps::Player, 
         comps::Pos::new(0, 0),
         Sprite::from_color(
@@ -40,9 +40,7 @@ fn setup(
             Vec2::new(GRID_SIZE, GRID_SIZE)
         ),
         Transform::from_xyz(0.0, 0.0, 0.0)
-    )).id();
-
-    map[(0, 0)].insert(player);
+    ));
 
     commands.spawn((
         comps::Pos::new(0, -1),
@@ -93,6 +91,17 @@ fn setup(
         ),
         Transform::from_xyz(0.0, 0.0, 0.0)
     ));
+}
+
+fn register_positions(
+    entites: Query<(Entity, &comps::Pos)>,
+    mut world: ResMut<mapstate::MapState>
+) {
+
+    for (entity, pos) in entites {
+        world[pos.to_pos()].insert(entity);
+    }
+
 }
 
 fn render(
