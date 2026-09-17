@@ -41,16 +41,22 @@ fn player_movement(
     mut key: ResMut<input::InputBuffer>
 ) {
 
-    let Some(input) = key.buffer else {return;};
-    match input {
-            KeyCode::KeyW | KeyCode::ArrowUp => player.y += 1,
-            KeyCode::KeyS | KeyCode::ArrowDown => player.y -= 1,
-            KeyCode::KeyA | KeyCode::ArrowLeft => player.x -= 1,
-            KeyCode::KeyD | KeyCode::ArrowRight => player.x += 1,
-            _ => return,
-        }
+    if !key.has_input() {
+        return;
+    }
     
-    key.buffer = None
+    if key.consume_if(KeyCode::KeyW) || key.consume_if(KeyCode::ArrowUp) {
+        player.y += 1;
+    }
+    else if key.consume_if(KeyCode::KeyS) || key.consume_if(KeyCode::ArrowDown) {
+        player.y -= 1;
+    }
+    else if key.consume_if(KeyCode::KeyA) || key.consume_if(KeyCode::ArrowLeft) {
+        player.x -= 1;
+    }
+    else if key.consume_if(KeyCode::KeyD) || key.consume_if(KeyCode::ArrowRight) {
+        player.x += 1;
+    }
 
 }
 
