@@ -20,21 +20,21 @@ impl Pos {
         Pos { x, y }
     }
 
-    pub fn set(&mut self, x: i64, y: i64, entity: &Entity, map: &mut MapState) {
+    pub fn set(&mut self, x: i64, y: i64, entity: Entity, map: &mut MapState) {
         let old_x = self.x;
         let old_y = self.y;
         self.x = x;
         self.y = y;
 
-        map[(old_x, old_y)].remove(entity);
-        map[(self.x, self.y)].insert(*entity);
+        map[(old_x, old_y)].remove(&entity);
+        map[(self.x, self.y)].insert(entity);
     }
 
     pub fn to_pos(&self) -> (i64, i64) {
         (self.x, self.y)
     }
 
-    pub fn move_direction(&mut self, direction: Direction, entity: &Entity, map: &mut MapState) {
+    pub fn move_direction(&mut self, direction: Direction, entity: Entity, map: &mut MapState) {
         match direction {
             Direction::Up        => self.set(self.x,       self.y + 1, entity, map),
             Direction::Down      => self.set(self.x,       self.y - 1, entity, map),

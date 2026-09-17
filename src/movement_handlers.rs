@@ -3,6 +3,7 @@ use crate::{comps, input, enums::Direction, mapstate::MapState};
 
 
 pub fn player_movement(
+    impassable: Query<&comps::Impassable>,
     mut player: Single<(Entity, &mut comps::Pos), With<comps::Player>>,
     mut key: ResMut<input::InputBuffer>,
     mut map: ResMut<MapState>,
@@ -17,16 +18,32 @@ pub fn player_movement(
 
     
     if key.consume_if(KeyCode::KeyW) || key.consume_if(KeyCode::ArrowUp) {
-        player.1.move_direction(Direction::Up, &entity, &mut map)
+        move_entity(impassable, entity, &mut map, &mut player.1, Direction::Up);
     }
     else if key.consume_if(KeyCode::KeyS) || key.consume_if(KeyCode::ArrowDown) {
-        player.1.move_direction(Direction::Down, &entity, &mut map)
+        move_entity(impassable, entity, &mut map, &mut player.1, Direction::Down);
     }
     else if key.consume_if(KeyCode::KeyA) || key.consume_if(KeyCode::ArrowLeft) {
-        player.1.move_direction(Direction::Left, &entity, &mut map)
+        move_entity(impassable, entity, &mut map, &mut player.1, Direction::Left);
     }
     else if key.consume_if(KeyCode::KeyD) || key.consume_if(KeyCode::ArrowRight) {
-        player.1.move_direction(Direction::Right, &entity, &mut map)
+        move_entity(impassable, entity, &mut map, &mut player.1, Direction::Right);
     }
 
+}
+
+pub fn move_entity(
+    impassable: Query<&comps::Impassable>,
+    entity: Entity, 
+    map: &mut MapState, 
+    pos: &mut comps::Pos, 
+    direction: Direction
+) -> bool {
+    let next_tile = direction.offset_pos(pos.to_pos());
+    let can_move = map[next_tile].iter().all(|e| impassable.get(*e).is_err());
+
+    if can_move {
+        pos.move_direction(direction, entity, map);
+    }
+    can_move
 }
