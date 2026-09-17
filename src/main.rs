@@ -1,6 +1,8 @@
 mod comps;
 mod input;
 mod player_movement;
+mod mapstate;
+mod enums;
 
 use bevy::prelude::*;
 
@@ -10,6 +12,8 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(input::InputSystem)
+
+        .insert_resource(mapstate::MapState::new(10, 10))
 
         .insert_resource(Time::<Fixed>::from_hz(10.0))
         .add_systems(Startup, setup)
@@ -22,21 +26,26 @@ fn main() {
 }
 
 
-fn setup(mut commands: Commands) {
+fn setup(
+    mut commands: Commands,
+    mut map: ResMut<mapstate::MapState>
+) {
     commands.spawn(Camera2d);
 
-    commands.spawn((
+    let player = commands.spawn((
         comps::Player, 
-        comps::Pos { x: 0, y: 0 },
+        comps::Pos::new(0, 0),
         Sprite::from_color(
             Color::srgb(1.0, 0.0, 0.0), 
             Vec2::new(GRID_SIZE, GRID_SIZE)
         ),
         Transform::from_xyz(0.0, 0.0, 0.0)
-    ));
+    )).id();
+
+    map[(0, 0)].insert(player);
 
     commands.spawn((
-        comps::Pos { x: 1, y: 0 },
+        comps::Pos::new(0, -1),
         comps::Impassable,
         Sprite::from_color(
             Color::srgb(0.6, 0.6, 0.6), 
@@ -46,7 +55,7 @@ fn setup(mut commands: Commands) {
     ));
 
     commands.spawn((
-        comps::Pos { x: 1, y: -1 },
+        comps::Pos::new(1, -1),
         comps::Impassable,
         Sprite::from_color(
             Color::srgb(0.6, 0.6, 0.6),
@@ -56,7 +65,7 @@ fn setup(mut commands: Commands) {
     ));
 
     commands.spawn((
-        comps::Pos { x: 1, y: -2 },
+        comps::Pos::new(1, -2),
         comps::Impassable,
         Sprite::from_color(
             Color::srgb(0.6, 0.6, 0.6),
@@ -66,7 +75,7 @@ fn setup(mut commands: Commands) {
     ));
 
     commands.spawn((
-        comps::Pos { x: 0, y: -2 },
+        comps::Pos::new(0, -2),
         comps::Impassable,
         Sprite::from_color(
             Color::srgb(0.6, 0.6, 0.6),
@@ -76,7 +85,7 @@ fn setup(mut commands: Commands) {
     ));
 
     commands.spawn((
-        comps::Pos { x: -1, y: -2 },
+        comps::Pos::new(-1, -2),
         comps::Impassable,
         Sprite::from_color(
             Color::srgb(0.6, 0.6, 0.6),

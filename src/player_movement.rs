@@ -1,27 +1,32 @@
 use bevy::prelude::*;
-use crate::{comps, input};
+use crate::{comps, input, enums::Direction, mapstate::MapState};
 
 
 pub fn player_movement(
-    mut player: Single<&mut comps::Pos, With<comps::Player>>,
-    mut key: ResMut<input::InputBuffer>
+    mut player: Single<(Entity, &mut comps::Pos), With<comps::Player>>,
+    mut key: ResMut<input::InputBuffer>,
+    mut map: ResMut<MapState>,
 ) {
 
     if !key.has_input() {
         return;
     }
+
+    let entity = player.0;
+    // let mut pos = *player.1;
+
     
     if key.consume_if(KeyCode::KeyW) || key.consume_if(KeyCode::ArrowUp) {
-        player.y += 1;
+        player.1.move_direction(Direction::Up, &entity, &mut map)
     }
     else if key.consume_if(KeyCode::KeyS) || key.consume_if(KeyCode::ArrowDown) {
-        player.y -= 1;
+        player.1.move_direction(Direction::Down, &entity, &mut map)
     }
     else if key.consume_if(KeyCode::KeyA) || key.consume_if(KeyCode::ArrowLeft) {
-        player.x -= 1;
+        player.1.move_direction(Direction::Left, &entity, &mut map)
     }
     else if key.consume_if(KeyCode::KeyD) || key.consume_if(KeyCode::ArrowRight) {
-        player.x += 1;
+        player.1.move_direction(Direction::Right, &entity, &mut map)
     }
 
 }
