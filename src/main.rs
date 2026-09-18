@@ -19,7 +19,6 @@ fn main() {
         .insert_resource(Time::<Fixed>::from_hz(10.0))
         .add_systems(Startup, setup)
         .add_systems(Update, render)
-        .add_systems(Update, register_positions)
         
         
         .add_systems(FixedUpdate, movement_handlers::player_movement)
@@ -92,17 +91,6 @@ fn setup(
         ),
         Transform::from_xyz(0.0, 0.0, 0.0)
     ));
-}
-
-fn register_positions(
-    entites: Query<(Entity, &comps::Pos)>,
-    mut world: ResMut<mapstate::MapState>
-) {
-
-    for (entity, pos) in entites {
-        world[pos.to_pos()].insert(entity);
-    }
-
 }
 
 fn render(

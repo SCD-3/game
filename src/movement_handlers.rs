@@ -44,10 +44,21 @@ pub fn move_entity(
     can_move
 }
 
+fn register_positions(
+    entites: Query<(Entity, &comps::Pos)>,
+    mut world: ResMut<crate::mapstate::MapState>
+) {
+
+    for (entity, pos) in entites {
+        world[pos.to_pos()].insert(entity);
+    }
+}
+
 pub struct MovementSystem;
 impl Plugin for MovementSystem {
     fn build(&self, app: &mut App) {
         app
+        .add_systems(Update, register_positions)
         .add_systems(Update, crate::mapstate::MapState::update)
         .add_systems(Update, crate::comps::Pos::update_last_pos);
     }

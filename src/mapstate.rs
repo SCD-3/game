@@ -1,5 +1,5 @@
 use std::ops::{Index, IndexMut};
-use crate::comps::{self, LastPos};
+use crate::comps;
 use grid::Grid;
 use bevy::{platform::collections::HashSet, prelude::*};
 
