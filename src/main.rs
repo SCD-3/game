@@ -14,6 +14,7 @@ fn main() {
         .add_plugins(input::InputSystem)
 
         .insert_resource(mapstate::MapState::new(10, 10))
+        .add_plugins(movement_handlers::MovementSystem)
 
         .insert_resource(Time::<Fixed>::from_hz(10.0))
         .add_systems(Startup, setup)

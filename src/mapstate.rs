@@ -1,5 +1,5 @@
 use std::ops::{Index, IndexMut};
-
+use crate::comps::{self, LastPos};
 use grid::Grid;
 use bevy::{platform::collections::HashSet, prelude::*};
 
@@ -12,6 +12,18 @@ impl MapState {
     pub fn new(rows: usize, cols: usize) -> Self {
         MapState {
             grid: Grid::new(rows, cols)
+        }
+    }
+
+    pub fn update(
+        mut map: ResMut<Self>,
+        query: Query<(Entity, &comps::LastPos , &comps::Pos), Changed<comps::Pos>>
+    ) {
+        for (entity, last_pos, pos) in query {
+            if let Some(last_pos) = last_pos.prev() {
+                map[last_pos.to_pos()].remove(&entity);
+                map[pos.to_pos()].insert(entity);
+            }
         }
     }
 

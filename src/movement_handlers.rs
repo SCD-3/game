@@ -4,7 +4,7 @@ use crate::{comps, input, enums::Direction, mapstate::MapState};
 
 pub fn player_movement(
     impassable: Query<&comps::Impassable>,
-    mut player: Single<(Entity, &mut comps::Pos), With<comps::Player>>,
+    mut pos: Single<&mut comps::Pos, With<comps::Player>>,
     mut key: ResMut<input::InputBuffer>,
     mut map: ResMut<MapState>,
 ) {
@@ -13,28 +13,24 @@ pub fn player_movement(
         return;
     }
 
-    let entity = player.0;
-    // let mut pos = *player.1;
-
     
     if key.consume_if(KeyCode::KeyW) || key.consume_if(KeyCode::ArrowUp) {
-        move_entity(impassable, entity, &mut map, &mut player.1, Direction::Up);
+        move_entity(impassable, &mut map, &mut pos, Direction::Up);
     }
     else if key.consume_if(KeyCode::KeyS) || key.consume_if(KeyCode::ArrowDown) {
-        move_entity(impassable, entity, &mut map, &mut player.1, Direction::Down);
+        move_entity(impassable, &mut map, &mut pos, Direction::Down);
     }
     else if key.consume_if(KeyCode::KeyA) || key.consume_if(KeyCode::ArrowLeft) {
-        move_entity(impassable, entity, &mut map, &mut player.1, Direction::Left);
+        move_entity(impassable, &mut map, &mut pos, Direction::Left);
     }
     else if key.consume_if(KeyCode::KeyD) || key.consume_if(KeyCode::ArrowRight) {
-        move_entity(impassable, entity, &mut map, &mut player.1, Direction::Right);
+        move_entity(impassable, &mut map, &mut pos, Direction::Right);
     }
 
 }
 
 pub fn move_entity(
     impassable: Query<&comps::Impassable>,
-    entity: Entity, 
     map: &mut MapState, 
     pos: &mut comps::Pos, 
     direction: Direction
@@ -43,7 +39,16 @@ pub fn move_entity(
     let can_move = map[next_tile].iter().all(|e| impassable.get(*e).is_err());
 
     if can_move {
-        pos.move_direction(direction, entity, map);
+        pos.move_direction(direction);
     }
     can_move
+}
+
+pub struct MovementSystem;
+impl Plugin for MovementSystem {
+    fn build(&self, app: &mut App) {
+        app
+        .add_systems(Update, crate::mapstate::MapState::update)
+        .add_systems(Update, crate::comps::Pos::update_last_pos);
+    }
 }
