@@ -29,7 +29,7 @@ impl Pos {
         self.y = y;
     }
 
-    pub fn to_pos(&self) -> (i64, i64) {
+    pub fn to_pos(self) -> (i64, i64) {
         (self.x, self.y)
     }
 

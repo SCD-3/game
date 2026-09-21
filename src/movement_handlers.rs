@@ -1,30 +1,27 @@
 use bevy::prelude::*;
-use crate::{comps, input, enums::Direction, mapstate::MapState};
+use crate::{comps, input::*, enums::Direction, mapstate::MapState};
 
 
 pub fn player_movement(
-    impassable: Query<&comps::Impassable>,
+    impassable_map: Query<&comps::Impassable>,
     mut pos: Single<&mut comps::Pos, With<comps::Player>>,
-    mut key: ResMut<input::InputBuffer>,
+    mut key_buffer: ResMut<InputBuffer>,
+        key: Res<InputMapping>,
     mut map: ResMut<MapState>,
 ) {
 
-    if !key.has_input() {
-        return;
-    }
-
     
-    if key.consume_if(KeyCode::KeyW) || key.consume_if(KeyCode::ArrowUp) {
-        move_entity(impassable, &mut map, &mut pos, Direction::Up);
+    if key.action_taken(InputAction::PlayerMoveUp, &mut key_buffer) {
+        move_entity(impassable_map, &mut map, &mut pos, Direction::Up);
     }
-    else if key.consume_if(KeyCode::KeyS) || key.consume_if(KeyCode::ArrowDown) {
-        move_entity(impassable, &mut map, &mut pos, Direction::Down);
+    else if key.action_taken(InputAction::PlayerMoveDown, &mut key_buffer) {
+        move_entity(impassable_map, &mut map, &mut pos, Direction::Down);
     }
-    else if key.consume_if(KeyCode::KeyA) || key.consume_if(KeyCode::ArrowLeft) {
-        move_entity(impassable, &mut map, &mut pos, Direction::Left);
+    else if key.action_taken(InputAction::PlayerMoveLeft, &mut key_buffer) {
+        move_entity(impassable_map, &mut map, &mut pos, Direction::Left);
     }
-    else if key.consume_if(KeyCode::KeyD) || key.consume_if(KeyCode::ArrowRight) {
-        move_entity(impassable, &mut map, &mut pos, Direction::Right);
+    else if key.action_taken(InputAction::PlayerMoveRight, &mut key_buffer) {
+        move_entity(impassable_map, &mut map, &mut pos, Direction::Right);
     }
 
 }

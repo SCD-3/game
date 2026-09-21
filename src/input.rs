@@ -1,4 +1,59 @@
-use bevy::prelude::*;
+use bevy::{platform::collections::HashMap, prelude::*};
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum InputAction {
+    PassTurn,
+    PlayerMoveUp,
+    PlayerMoveDown,
+    PlayerMoveLeft,
+    PlayerMoveRight
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct InputBind {
+    pub primary: Option<KeyCode>,
+    pub secondary: Option<KeyCode>
+}
+impl InputBind {
+    
+    pub fn new(primary: Option<KeyCode>, secondary: Option<KeyCode>) -> Self {
+        InputBind { primary, secondary }
+    }
+
+}
+
+#[derive(Resource)]
+pub struct InputMapping {
+    pub mapping: HashMap<InputAction, InputBind>
+}
+impl InputMapping {
+
+    pub fn action_taken(&self, action: InputAction, input_buffer: &mut InputBuffer) -> bool {
+        let InputBind { primary, secondary } = self.mapping.get(&action)
+            .unwrap_or_else(|| panic!("failed to find bind for {action:?}"));
+        
+          primary.is_some_and(|k| input_buffer.consume_if(k)) || 
+        secondary.is_some_and(|k| input_buffer.consume_if(k))
+    }
+
+}
+
+impl Default for InputMapping {
+    
+    fn default() -> Self {
+        let mut mapping = HashMap::new();
+        mapping.insert(InputAction::PassTurn       , InputBind::new(Some(KeyCode::Space), None                     ));
+        mapping.insert(InputAction::PlayerMoveUp   , InputBind::new(Some(KeyCode::KeyW ), Some(KeyCode::ArrowUp   )));
+        mapping.insert(InputAction::PlayerMoveDown , InputBind::new(Some(KeyCode::KeyS ), Some(KeyCode::ArrowDown )));
+        mapping.insert(InputAction::PlayerMoveLeft , InputBind::new(Some(KeyCode::KeyA ), Some(KeyCode::ArrowLeft )));
+        mapping.insert(InputAction::PlayerMoveRight, InputBind::new(Some(KeyCode::KeyD ), Some(KeyCode::ArrowRight)));
+
+        InputMapping { mapping }
+    }
+
+}
+
 
 #[derive(Resource, Default)]
 pub struct InputBuffer {
@@ -46,6 +101,7 @@ pub struct InputSystem;
 impl Plugin for InputSystem {
     fn build(&self, app: &mut App) {
         app
+        .insert_resource(InputMapping::default())
         .insert_resource(InputBuffer::default())
         .add_systems(Update, buffer_input);
     }
