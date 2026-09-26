@@ -1,4 +1,4 @@
-use bevy::{platform::collections::HashMap, prelude::*};
+use bevy::{app::MainScheduleOrder, ecs::schedule::ScheduleLabel, platform::collections::HashMap, prelude::*};
 
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -85,24 +85,33 @@ impl InputBuffer {
         self.buffer.is_some()
     }
 
-}
-
-fn buffer_input(
+    fn buffer_input(
     mut input_queue: ResMut<InputBuffer>,
     keyboard: Res<ButtonInput<KeyCode>>,
-) {
-    for key in keyboard.get_just_pressed() {
-        input_queue.buffer = Some(*key)
+    ) {
+        for key in keyboard.get_just_pressed() {
+            input_queue.buffer = Some(*key)
+        }
     }
+
 }
+
+
+#[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
+pub struct InputStep;
 
 
 pub struct InputSystem;
 impl Plugin for InputSystem {
     fn build(&self, app: &mut App) {
         app
+        .world_mut()
+            .resource_mut::<MainScheduleOrder>()
+            .insert_before(Update, InputStep);
+
+        app
         .insert_resource(InputMapping::default())
         .insert_resource(InputBuffer::default())
-        .add_systems(Update, buffer_input);
+        .add_systems(InputStep, InputBuffer::buffer_input);
     }
 }

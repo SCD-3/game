@@ -3,6 +3,7 @@ mod input;
 mod movement_handlers;
 mod mapstate;
 mod enums;
+mod ticks;
 
 use bevy::prelude::*;
 
@@ -12,16 +13,13 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(input::InputSystem)
+        .add_plugins(ticks::TickManagement)
 
         .insert_resource(mapstate::MapState::new(10, 10))
         .add_plugins(movement_handlers::MovementSystem)
 
-        .insert_resource(Time::<Fixed>::from_hz(10.0))
         .add_systems(Startup, setup)
-        .add_systems(Update, render)
-        
-        
-        .add_systems(FixedUpdate, movement_handlers::player_movement)
+        .add_systems(PostUpdate, render)
 
         .run();
 }
@@ -105,3 +103,4 @@ fn render(
             transform.translation = pos.get_vec3_for_player_at(*player.0);
         }
 }
+
